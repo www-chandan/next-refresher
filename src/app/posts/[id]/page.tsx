@@ -1,13 +1,20 @@
-import PostItem from "@/components/post-item";
-import { Suspense } from "react";
+import prisma from "@/app/db";
+import { notFound } from "next/navigation";
 
-export default function page({params}:{params: {id:string}}){
-    return (
-        <main className="text-center pt-16 px-3">
-            <h1 className="text-4xl md:text-5xl font-bold mb-5">Post</h1>
-            <Suspense fallback="Loading...">
-                <PostItem params={{ id: params.id }} />
-            </Suspense>            
-        </main>
-    )
+export default async function Page({ params }: { params: { id: string } }) {
+  const post = await prisma.post.findUnique({
+    where: {
+      id: parseInt(params.id),
+    },
+  });
+  if (!post) {
+    notFound();
+  }
+
+  return (
+    <main className="px-7 pt-24 text-center">
+      <h1 className="text-5xl font-semibold mb-7">{post.title}</h1>
+      <p className="max-w-[700px] mx-auto">{post.body}</p>
+    </main>
+  );
 }
